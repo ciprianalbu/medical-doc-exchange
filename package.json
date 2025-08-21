@@ -1,0 +1,13 @@
+{
+  "name": "medical-doc-exchange",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "start": "node backend/server.js",
+    "build": "npm run build --prefix frontend",
+    "postinstall": "npm install --prefix backend && npm install --prefix frontend"
+  }
+}
