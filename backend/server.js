@@ -46,7 +46,7 @@ app.post('/api/upload', upload.single('file'), (req, res) => {
   res.json({ code });
 });
 
-// Retrieve endpoint
+// Retrieve endpoint with file existence check
 app.get('/api/retrieve/:code', (req, res) => {
   const { code } = req.params;
   const doc = getDocument(code);
@@ -54,9 +54,19 @@ app.get('/api/retrieve/:code', (req, res) => {
     return res.status(404).json({ error: "Code not found or expired" });
   }
   const filePath = path.join(UPLOAD_DIR, doc.filename);
-  // For images show preview, for others force download
-  const mime = req.query.download === "1" ? "application/octet-stream" : undefined;
-  res.sendFile(filePath, { headers: mime ? { "Content-Type": mime } : {} });
+  fs.access(filePath, fs.constants.F_OK, (err) => {
+    if (err) {
+      console.error(`File not found: ${filePath}`);
+      return res.status(404).json({ error: "File not found on server." });
+    }
+    const mime = req.query.download === "1" ? "application/octet-stream" : undefined;
+    res.sendFile(filePath, { headers: mime ? { "Content-Type": mime } : {} }, (err) => {
+      if (err) {
+        console.error('Error sending file:', err);
+        res.status(500).json({ error: "Internal Server Error" });
+      }
+    });
+  });
 });
 
 // Info endpoint (for preview/download button)
