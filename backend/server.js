@@ -46,14 +46,15 @@ app.post('/api/upload', upload.single('file'), (req, res) => {
   res.json({ code });
 });
 
-// Retrieve endpoint with file existence check
+// Retrieve endpoint with absolute path
 app.get('/api/retrieve/:code', (req, res) => {
   const { code } = req.params;
   const doc = getDocument(code);
   if (!doc || (Date.now() - doc.timestamp > EXPIRY_MS)) {
     return res.status(404).json({ error: "Code not found or expired" });
   }
-  const filePath = path.join(UPLOAD_DIR, doc.filename);
+  // Use absolute path for res.sendFile to avoid Express errors
+  const filePath = path.resolve(UPLOAD_DIR, doc.filename);
   fs.access(filePath, fs.constants.F_OK, (err) => {
     if (err) {
       console.error(`File not found: ${filePath}`);
