@@ -23,6 +23,14 @@ export default function Retrieve() {
     setFileUrl(`/api/retrieve/${code}`);
   };
 
+  {filename.match(/\.(jpg|jpeg|png|gif)$/i) ? (
+  <img src={fileUrl} alt="Preview" className="max-w-full max-h-64 mx-auto" />
+) : filename.match(/\.pdf$/i) ? (
+  <iframe src={fileUrl} width="100%" height="500px" title="PDF Preview"></iframe>
+) : (
+  <a href={fileUrl + "?download=1"} ...>Download file</a>
+)}
+
   return (
     <div className="bg-white p-6 rounded shadow w-full max-w-md">
       <form onSubmit={handleRetrieve} className="flex flex-col space-y-4">
